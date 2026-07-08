@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>It works</title>
+<style>
+  :root {
+    --navy: #22214b;
+    --green: #21ab74;
+    --sky: #34b8e1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--navy);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .box {
+    text-align: center;
+    max-width: 420px;
+  }
+  .tick {
+    width: 72px; height: 72px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+  h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  p { color: rgba(255,255,255,0.75); line-height: 1.5; }
+  .stamp {
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--sky);
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="tick">✓</div>
+    <h1>This page is live</h1>
+    <p>If you can read this at a github.io address, hosting works. Rung 1 complete.</p>
+    <div class="stamp" id="stamp"></div>
+  </div>
+  <script>
+    document.getElementById('stamp').textContent =
+      'Loaded ' + new Date().toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' });
+  </script>
+</body>
+</html>
