@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marble Aftercare</title>
+<style>
+  /* ── FONTS ──────────────────────────────────────────────────────────────
+     Swap in your Cera Pro files when hosting. Falls back cleanly if absent.
+  ─────────────────────────────────────────────────────────────────────── */
+  @font-face {
+    font-family: 'Cera Pro';
+    src: url('fonts/CeraPro-Regular.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Cera Pro';
+    src: url('fonts/CeraPro-Medium.woff2') format('woff2');
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Cera Pro';
+    src: url('fonts/CeraPro-Bold.woff2') format('woff2');
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Cera Pro';
+    src: url('fonts/CeraPro-Black.woff2') format('woff2');
+    font-weight: 900; font-style: normal; font-display: swap;
+  }
+
+  :root {
+    --navy: #22214b;
+    --navy-mid: #2e2d5e;
+    --navy-soft: rgba(34,33,75,0.08);
+    --green: #21ab74;
+    --green-soft: rgba(33,171,116,0.12);
+    --sky: #34b8e1;
+    --sky-soft: rgba(52,184,225,0.14);
+    --amber: #e8a33a;
+    --amber-soft: rgba(232,163,58,0.14);
+    --grey: #5a5a6e;
+    --line: #e6e6ee;
+    --panel: #f7f8fb;
+    --white: #ffffff;
+    --font: 'Cera Pro', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --radius: 10px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--white);
+    color: var(--navy);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .card { max-width: 860px; margin: 0 auto; padding: 0 16px 24px; }
+
+  /* ── DEMO BANNER ── */
+  .demo-banner {
+    display: none;
+    align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--navy); color: #fff;
+    padding: 8px 14px; margin: 12px 0 0; border-radius: var(--radius);
+    font-size: 12px;
+  }
+  .demo-banner.show { display: flex; }
+  .demo-banner strong { font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: 11px; color: var(--sky); }
+  .demo-banner select {
+    margin-left: auto;
+    font-family: var(--font); font-size: 12px;
+    background: var(--navy-mid); color: #fff;
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 6px;
+    padding: 4px 8px; cursor: pointer;
+  }
+
+  /* ── HEADER ── */
+  header { padding: 20px 0 4px; display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+  .head-main { flex: 1 1 260px; min-width: 0; }
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 2px;
+  }
+  h1 { font-size: 22px; font-weight: 900; line-height: 1.2; }
+  .sub { color: var(--grey); font-size: 13px; margin-top: 2px; }
+  .sub b { color: var(--navy); font-weight: 700; }
+
+  .day-chip {
+    text-align: center; background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 8px 16px; min-width: 92px;
+  }
+  .day-chip .n { font-size: 26px; font-weight: 900; line-height: 1; }
+  .day-chip .l { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey); margin-top: 3px; }
+
+  /* ── NEXT UP STRIP ── */
+  .next-strip {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--green-soft); border: 1px solid rgba(33,171,116,0.3);
+    border-radius: var(--radius); padding: 12px 16px; margin-top: 14px;
+  }
+  .next-strip.all-done { background: var(--sky-soft); border-color: rgba(52,184,225,0.35); }
+  .next-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); }
+  .next-strip.all-done .next-label { color: var(--sky); }
+  .next-text { font-weight: 700; }
+  .next-text small { display: block; font-weight: 400; color: var(--grey); font-size: 12px; }
+  .next-strip .spacer { flex: 1; }
+  .btn {
+    font-family: var(--font); font-size: 13px; font-weight: 700;
+    border: 0; border-radius: 8px; padding: 9px 16px; cursor: pointer;
+    background: var(--green); color: #fff; transition: transform 0.08s ease, box-shadow 0.15s ease;
+  }
+  .btn:hover { box-shadow: 0 3px 10px rgba(33,171,116,0.35); }
+  .btn:active { transform: scale(0.97); }
+  .btn:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+  .btn.ghost { background: transparent; color: var(--navy); border: 1px solid var(--line); }
+  .btn.ghost:hover { box-shadow: none; background: var(--panel); }
+
+  /* ── SIGNATURE: THE 90-DAY RAIL ── */
+  .rail-wrap { margin: 26px 0 6px; padding: 0 8px; }
+  .rail {
+    position: relative; height: 4px; border-radius: 2px;
+    background: var(--line); margin: 44px 26px 58px;
+  }
+  .rail-fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, var(--green), var(--sky));
+    border-radius: 2px; width: 0;
+    transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .today-marker {
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--navy); border: 3px solid #fff;
+    box-shadow: 0 0 0 2px var(--navy);
+    transition: left 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 3;
+  }
+  .today-marker::after {
+    content: 'Today'; position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--navy); white-space: nowrap;
+  }
+  .node {
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 900; z-index: 2;
+    background: #fff; border: 2px solid var(--line); color: var(--grey);
+    cursor: default;
+  }
+  .node.done { background: var(--green); border-color: var(--green); color: #fff; }
+  .node.open { background: #fff; border-color: var(--amber); color: var(--amber); animation: pulse 2.2s ease-in-out infinite; }
+  .node.upcoming { background: #fff; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--amber-soft); }
+    50% { box-shadow: 0 0 0 7px var(--amber-soft); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .node.open { animation: none; }
+    .rail-fill, .today-marker { transition: none; }
+  }
+  .node-label {
+    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    text-align: center; white-space: nowrap;
+  }
+  .node-label .nm { font-size: 11px; font-weight: 700; }
+  .node-label .dt { font-size: 10px; color: var(--grey); }
+
+  /* ── SUMMARY ROW ── */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+  .stat {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 12px 14px;
+  }
+  .stat .v { font-size: 20px; font-weight: 900; }
+  .stat .v .unit { font-size: 12px; font-weight: 700; color: var(--grey); }
+  .stat .k { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--grey); margin-top: 2px; }
+  .stat.hero { background: var(--green-soft); border-color: rgba(33,171,116,0.3); }
+  .stat.hero .v { color: var(--green); }
+
+  /* ── CHECKPOINT LIST ── */
+  h2 { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey); margin: 24px 0 10px; }
+  .checkpoints { display: flex; flex-direction: column; gap: 8px; }
+  .cp {
+    display: flex; align-items: center; gap: 12px;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px 14px; background: #fff;
+  }
+  .cp .dot {
+    flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 13px;
+  }
+  .cp.done { border-color: rgba(33,171,116,0.35); background: rgba(33,171,116,0.04); }
+  .cp.done .dot { background: var(--green); color: #fff; }
+  .cp.open { border-color: rgba(232,163,58,0.5); background: rgba(232,163,58,0.05); }
+  .cp.open .dot { background: var(--amber-soft); color: var(--amber); border: 2px solid var(--amber); }
+  .cp.upcoming .dot { background: var(--panel); color: var(--grey); border: 2px solid var(--line); }
+  .cp-main { flex: 1 1 auto; min-width: 0; }
+  .cp-name { font-weight: 700; }
+  .cp-note { font-size: 12px; color: var(--grey); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cp-when { flex: 0 0 auto; font-size: 12px; font-weight: 700; text-align: right; }
+  .cp.done .cp-when { color: var(--green); }
+  .cp.open .cp-when { color: var(--amber); }
+  .cp.upcoming .cp-when { color: var(--grey); font-weight: 400; }
+  .cp .btn { flex: 0 0 auto; padding: 7px 12px; font-size: 12px; }
+
+  /* ── CANDIDATE FOOTER ── */
+  .cand {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-top: 22px; padding: 14px 16px;
+    background: var(--navy); color: #fff; border-radius: var(--radius);
+  }
+  .cand .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green), var(--sky));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 14px;
+  }
+  .cand-info { flex: 1 1 160px; min-width: 0; }
+  .cand-name { font-weight: 700; }
+  .cand-role { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .cand-phone {
+    font-weight: 700; font-size: 15px; letter-spacing: 0.02em;
+    color: var(--sky); text-decoration: none;
+  }
+  .copy-btn {
+    background: rgba(255,255,255,0.12); color: #fff;
+    border: 1px solid rgba(255,255,255,0.25); border-radius: 8px;
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    padding: 7px 12px; cursor: pointer;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.2); }
+  .copy-btn:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+
+  /* ── NOTE MODAL ── */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(34,33,75,0.5);
+    display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: #fff; border-radius: 14px; padding: 22px;
+    width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(34,33,75,0.35);
+  }
+  .modal h3 { font-size: 16px; font-weight: 900; margin-bottom: 4px; }
+  .modal p { font-size: 12px; color: var(--grey); margin-bottom: 12px; }
+  .modal textarea {
+    width: 100%; min-height: 110px; resize: vertical;
+    font-family: var(--font); font-size: 13px;
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px;
+  }
+  .modal textarea:focus-visible { outline: 3px solid var(--sky); outline-offset: 1px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+  .toast {
+    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--navy); color: #fff; font-size: 13px; font-weight: 700;
+    padding: 10px 18px; border-radius: 999px; opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease; z-index: 60;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  .error-panel {
+    display: none; margin: 16px 0; padding: 14px 16px;
+    background: var(--amber-soft); border: 1px solid rgba(232,163,58,0.5);
+    border-radius: var(--radius); font-size: 13px;
+  }
+  .error-panel.show { display: block; }
+
+  @media (max-width: 520px) {
+    .rail { margin: 44px 16px 62px; }
+    .node-label .dt { display: none; }
+    .cp-when { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="demo-banner" id="demoBanner">
+    <strong>Demo mode</strong>
+    <span>Sample data. Connect via Bullhorn custom tab for live placements.</span>
+    <select id="demoPicker" aria-label="Choose sample placement">
+      <option value="0">Fresh start: Day 2</option>
+      <option value="1">Cruising: Day 41</option>
+      <option value="2">Call due: Day 74</option>
+    </select>
+  </div>
+
+  <div class="error-panel" id="errorPanel"></div>
+
+  <header>
+    <div class="head-main">
+      <div class="eyebrow">Aftercare</div>
+      <h1 id="candTitle">Loading placement</h1>
+      <div class="sub" id="jobLine"></div>
+    </div>
+    <div class="day-chip">
+      <div class="n" id="dayNum">–</div>
+      <div class="l">Day of placement</div>
+    </div>
+  </header>
+
+  <div class="next-strip" id="nextStrip">
+    <span class="next-label" id="nextLabel">Next up</span>
+    <span class="next-text" id="nextText"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="logNoteBtn">Log Aftercare Call</button>
+  </div>
+
+  <div class="rail-wrap" aria-label="Aftercare timeline">
+    <div class="rail" id="rail">
+      <div class="rail-fill" id="railFill"></div>
+      <div class="today-marker" id="todayMarker" style="left:0%"></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat hero">
+      <div class="v"><span id="statDone">0</span><span class="unit"> of <span id="statTotal">5</span></span></div>
+      <div class="k">Aftercare Calls logged</div>
+    </div>
+    <div class="stat">
+      <div class="v"><span id="statFirst">–</span><span class="unit"> days</span></div>
+      <div class="k">First call in</div>
+    </div>
+    <div class="stat">
+      <div class="v"><span id="statNotes">0</span></div>
+      <div class="k">Check-ins logged</div>
+    </div>
+  </div>
+
+  <h2>The First 90 Days</h2>
+  <div class="checkpoints" id="checkpoints"></div>
+
+  <div class="cand" id="candFooter">
+    <div class="avatar" id="candInitials">–</div>
+    <div class="cand-info">
+      <div class="cand-name" id="candName"></div>
+      <div class="cand-role" id="candRole"></div>
+    </div>
+    <a class="cand-phone" id="candPhone" href="#"></a>
+    <button class="copy-btn" id="copyPhone">Copy number</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <h3 id="modalTitle">Log Aftercare Call</h3>
+    <p id="modalSub"></p>
+    <textarea id="noteText" placeholder="How did the call go? How's the candidate travelling, anything from the client?"></textarea>
+    <div class="modal-actions">
+      <button class="btn ghost" id="modalCancel">Cancel</button>
+      <button class="btn" id="modalSave">Save note</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   CONFIG: everything you will need to tune lives here
+═══════════════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  // Checkpoint windows in days from placement dateBegin.
+  // due = target day, open/close = window in which a note counts.
+  checkpoints: [
+    { key: 'd1', name: 'Day 1',   due: 1,  open: 0,  close: 3  },
+    { key: 'w1', name: 'Week 1',  due: 7,  open: 4,  close: 12 },
+    { key: 'm1', name: 'Month 1', due: 30, open: 21, close: 40 },
+    { key: 'm2', name: 'Month 2', due: 60, open: 50, close: 70 },
+    { key: 'm3', name: 'Month 3', due: 90, open: 80, close: 100 },
+  ],
+  railEndDay: 100,          // rail spans day 0 to this
+  noteAction: 'Aftercare',  // action label written on new notes; also counted
+                            // as a touchpoint. Set to null to count ANY note.
+  countAnyNoteAsTouchpoint: true, // true = any candidate note in a window counts
+  placementFields: 'id,dateBegin,status,candidate(id,firstName,lastName,phone,mobile,occupation),jobOrder(id,title,clientCorporation(name)),owner(firstName,lastName)',
+  maxNotes: 200,
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BULLHORN CONTEXT
+   Custom tab URL example to configure in Admin > View Layout:
+   https://your-host/aftercare.html?EntityID=*entityID*&BhRestToken=*BhRestToken*&restUrl=*restUrl*&UserID=*userID*
+   Exact substitution variables depend on your private label config.
+═══════════════════════════════════════════════════════════════════════ */
+const params = new URLSearchParams(location.search);
+const ctx = {
+  entityId: params.get('EntityID') || params.get('entityId'),
+  token: params.get('BhRestToken') || params.get('bhRestToken'),
+  restUrl: params.get('restUrl'),
+  userId: params.get('UserID') || params.get('userId'),
+};
+const LIVE = !!(ctx.entityId && ctx.token && ctx.restUrl);
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DEMO DATA: three placements at different points in the journey
+═══════════════════════════════════════════════════════════════════════ */
+const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return d; };
+const DEMO = [
+  {
+    placement: { id: 90001, dateBegin: daysAgo(2), status: 'Approved',
+      candidate: { id: 1, firstName: 'Jake', lastName: 'Morrison', phone: '0412 555 118', occupation: 'Site Supervisor' },
+      jobOrder: { title: 'Site Supervisor', clientCorporation: { name: 'BuildRight Constructions' } },
+      owner: { firstName: 'Sophie', lastName: 'Tran' } },
+    notes: [ { dateAdded: daysAgo(1), action: 'Aftercare', comments: 'Day 1 check in. Jake started well, PPE sorted, site induction complete.' } ],
+  },
+  {
+    placement: { id: 90002, dateBegin: daysAgo(41), status: 'Approved',
+      candidate: { id: 2, firstName: 'Priya', lastName: 'Sharma', phone: '0433 555 902', occupation: 'Project Engineer' },
+      jobOrder: { title: 'Project Engineer', clientCorporation: { name: 'Meridian Civil' } },
+      owner: { firstName: 'Dan', lastName: 'Keogh' } },
+    notes: [
+      { dateAdded: daysAgo(40), action: 'Aftercare', comments: 'First day call. Priya settled, team welcoming.' },
+      { dateAdded: daysAgo(34), action: 'Aftercare', comments: 'Week 1 review. Enjoying the drainage package, no concerns.' },
+      { dateAdded: daysAgo(10), action: 'Aftercare', comments: 'Month 1 catch up. Client happy, extension likely.' },
+    ],
+  },
+  {
+    placement: { id: 90003, dateBegin: daysAgo(74), status: 'Approved',
+      candidate: { id: 3, firstName: 'Tom', lastName: 'Alvarez', phone: '0401 555 337', occupation: 'Mining Electrician' },
+      jobOrder: { title: 'HV Electrician', clientCorporation: { name: 'Kestrel Resources' } },
+      owner: { firstName: 'Mia', lastName: 'Okafor' } },
+    notes: [
+      { dateAdded: daysAgo(73), action: 'Aftercare', comments: 'Day 1 call from the airport. Flights and camp all sorted.' },
+      { dateAdded: daysAgo(66), action: 'Aftercare', comments: 'Week 1. Swing going well, gear arrived.' },
+      { dateAdded: daysAgo(45), action: 'Aftercare', comments: 'Month 1 check in. Loving the site, supervisor impressed.' },
+    ],
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BULLHORN REST (live mode)
+═══════════════════════════════════════════════════════════════════════ */
+async function bh(path) {
+  const sep = path.includes('?') ? '&' : '?';
+  const res = await fetch(`${ctx.restUrl}${path}${sep}BhRestToken=${encodeURIComponent(ctx.token)}`);
+  if (!res.ok) throw new Error(`Bullhorn REST ${res.status} on ${path.split('?')[0]}`);
+  return res.json();
+}
+
+async function loadLive() {
+  const p = await bh(`entity/Placement/${ctx.entityId}?fields=${encodeURIComponent(CONFIG.placementFields)}`);
+  const placement = p.data;
+  placement.dateBegin = new Date(placement.dateBegin);
+  const n = await bh(`entity/Candidate/${placement.candidate.id}/notes?fields=id,dateAdded,action,comments&max=${CONFIG.maxNotes}&orderBy=-dateAdded`);
+  const notes = (n.data || []).map(x => ({ ...x, dateAdded: new Date(x.dateAdded) }));
+  return { placement, notes };
+}
+
+async function saveNoteLive(comments) {
+  const body = {
+    action: CONFIG.noteAction || 'Aftercare',
+    comments,
+    personReference: { id: state.placement.candidate.id },
+  };
+  const res = await fetch(`${ctx.restUrl}entity/Note?BhRestToken=${encodeURIComponent(ctx.token)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Note save failed (${res.status})`);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ENGINE
+═══════════════════════════════════════════════════════════════════════ */
+let state = { placement: null, notes: [], demoIndex: 0 };
+const $ = id => document.getElementById(id);
+const dayDiff = (a, b) => Math.floor((a - b) / 86400000);
+const fmt = d => d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+
+function evaluate() {
+  const start = state.placement.dateBegin;
+  const today = dayDiff(new Date(), start);
+  const relevant = state.notes.filter(n =>
+    n.dateAdded >= start &&
+    (CONFIG.countAnyNoteAsTouchpoint || !CONFIG.noteAction || n.action === CONFIG.noteAction)
+  );
+  const cps = CONFIG.checkpoints.map(cp => {
+    const hit = relevant.find(n => {
+      const d = dayDiff(n.dateAdded, start);
+      return d >= cp.open && d <= cp.close;
+    });
+    let status = 'upcoming';
+    if (hit) status = 'done';
+    else if (today >= cp.open) status = 'open';
+    return { ...cp, status, note: hit || null, dueDate: new Date(start.getTime() + cp.due * 86400000) };
+  });
+  const firstNote = relevant.length
+    ? Math.min(...relevant.map(n => dayDiff(n.dateAdded, start)))
+    : null;
+  return { today, cps, firstNote, noteCount: relevant.length };
+}
+
+function render() {
+  const p = state.placement;
+  const { today, cps, firstNote, noteCount } = evaluate();
+  const c = p.candidate;
+  const fullName = `${c.firstName} ${c.lastName}`;
+
+  $('candTitle').textContent = fullName;
+  $('jobLine').innerHTML = `<b>${p.jobOrder.title}</b> at ${p.jobOrder.clientCorporation.name} · started ${fmt(p.dateBegin)}`;
+  $('dayNum').textContent = Math.max(today, 0);
+
+  // Next up strip
+  const next = cps.find(x => x.status === 'open') || cps.find(x => x.status === 'upcoming');
+  const strip = $('nextStrip');
+  if (!next) {
+    strip.classList.add('all-done');
+    $('nextLabel').textContent = 'Aftercare complete';
+    $('nextText').innerHTML = `Every Aftercare Call made for ${c.firstName}. Looked after start to finish.`;
+    $('logNoteBtn').textContent = 'Log another call';
+  } else {
+    strip.classList.remove('all-done');
+    const isOpen = next.status === 'open';
+    $('nextLabel').textContent = isOpen ? 'Due now' : 'Next up';
+    $('nextText').innerHTML = isOpen
+      ? `<span>${c.firstName}'s ${next.name} Aftercare Call is ready to make</span><small>A quick call locks it in</small>`
+      : `<span>${next.name} Aftercare Call</span><small>Due ${fmt(next.dueDate)}</small>`;
+    $('logNoteBtn').textContent = 'Log Aftercare Call';
+  }
+
+  // Rail
+  const pct = d => Math.min(Math.max(d / CONFIG.railEndDay * 100, 0), 100);
+  $('railFill').style.width = pct(today) + '%';
+  $('todayMarker').style.left = pct(today) + '%';
+  const rail = $('rail');
+  rail.querySelectorAll('.node').forEach(n => n.remove());
+  cps.forEach(cp => {
+    const node = document.createElement('div');
+    node.className = `node ${cp.status}`;
+    node.style.left = pct(cp.due) + '%';
+    node.innerHTML = (cp.status === 'done' ? '✓' : '·') +
+      `<span class="node-label"><span class="nm">${cp.name}</span><br><span class="dt">${fmt(cp.dueDate)}</span></span>`;
+    node.title = cp.status === 'done'
+      ? `${cp.name} Aftercare Call: logged ${fmt(cp.note.dateAdded)}`
+      : `${cp.name} Aftercare Call: due ${fmt(cp.dueDate)}`;
+    rail.appendChild(node);
+  });
+
+  // Stats
+  const done = cps.filter(x => x.status === 'done').length;
+  $('statDone').textContent = done;
+  $('statTotal').textContent = cps.length;
+  $('statFirst').textContent = firstNote === null ? '–' : firstNote;
+  $('statNotes').textContent = noteCount;
+
+  // Checkpoint list
+  $('checkpoints').innerHTML = cps.map(cp => {
+    const when = cp.status === 'done'
+      ? `Logged ${fmt(cp.note.dateAdded)}`
+      : cp.status === 'open' ? 'Due now' : `Due ${fmt(cp.dueDate)}`;
+    const note = cp.note ? `<div class="cp-note">${cp.note.comments}</div>` : '';
+    const btn = cp.status === 'open' ? `<button class="btn" data-cp="${cp.key}">Log now</button>` : '';
+    return `<div class="cp ${cp.status}">
+      <div class="dot">${cp.status === 'done' ? '✓' : cp.name.replace(/[a-z ]/g, '')}</div>
+      <div class="cp-main"><div class="cp-name">${cp.name}</div>${note}</div>
+      <div class="cp-when">${when}</div>${btn}
+    </div>`;
+  }).join('');
+  $('checkpoints').querySelectorAll('[data-cp]').forEach(b => b.addEventListener('click', openModal));
+
+  // Candidate footer
+  $('candInitials').textContent = (c.firstName[0] || '') + (c.lastName[0] || '');
+  $('candName').textContent = fullName;
+  $('candRole').textContent = `${c.occupation || p.jobOrder.title} · consultant ${p.owner.firstName} ${p.owner.lastName}`;
+  const phone = c.phone || c.mobile || '';
+  $('candPhone').textContent = phone;
+  $('candPhone').href = 'tel:' + phone.replace(/\s/g, '');
+}
+
+/* ── Note modal ── */
+function openModal() {
+  $('modalSub').textContent = `Saved to ${state.placement.candidate.firstName}'s record` + (LIVE ? '' : ' (demo, nothing is written to Bullhorn)');
+  $('noteText').value = '';
+  $('modalBg').classList.add('show');
+  $('noteText').focus();
+}
+$('logNoteBtn').addEventListener('click', openModal);
+$('modalCancel').addEventListener('click', () => $('modalBg').classList.remove('show'));
+$('modalBg').addEventListener('click', e => { if (e.target === $('modalBg')) $('modalBg').classList.remove('show'); });
+$('modalSave').addEventListener('click', async () => {
+  const text = $('noteText').value.trim();
+  if (!text) return;
+  try {
+    if (LIVE) {
+      await saveNoteLive(text);
+      const fresh = await loadLive();
+      state.placement = fresh.placement; state.notes = fresh.notes;
+    } else {
+      state.notes.push({ dateAdded: new Date(), action: CONFIG.noteAction || 'Aftercare', comments: text });
+    }
+    $('modalBg').classList.remove('show');
+    render();
+    toast('Aftercare Call logged');
+  } catch (err) { toast('Save did not go through: ' + err.message); }
+});
+
+$('copyPhone').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('candPhone').textContent); toast('Number copied'); }
+  catch { toast('Copy blocked by browser, select the number instead'); }
+});
+
+let toastTimer;
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ── Boot ── */
+async function boot() {
+  if (LIVE) {
+    try {
+      const { placement, notes } = await loadLive();
+      state.placement = placement; state.notes = notes;
+      render();
+    } catch (err) {
+      const ep = $('errorPanel');
+      ep.textContent = 'Could not reach Bullhorn: ' + err.message + '. Check the custom tab URL variables and that the session token is being passed through.';
+      ep.classList.add('show');
+      loadDemo(0);
+    }
+  } else {
+    $('demoBanner').classList.add('show');
+    loadDemo(0);
+  }
+}
+function loadDemo(i) {
+  state.demoIndex = i;
+  const d = DEMO[i];
+  state.placement = { ...d.placement };
+  state.notes = d.notes.map(n => ({ ...n }));
+  render();
+}
+$('demoPicker').addEventListener('change', e => loadDemo(+e.target.value));
+boot();
+</script>
+</body>
+</html>
