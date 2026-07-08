@@ -392,13 +392,30 @@ const CONFIG = {
    Exact substitution variables depend on your private label config.
 ═══════════════════════════════════════════════════════════════════════ */
 const params = new URLSearchParams(location.search);
+// If Bullhorn didn't substitute a variable, it arrives as a literal like *entityID*.
+// Treat those as absent so we fall back to demo mode instead of firing doomed calls.
+const clean = v => (v && !v.includes('*')) ? v : null;
 const ctx = {
-  entityId: params.get('EntityID') || params.get('entityId'),
-  token: params.get('BhRestToken') || params.get('bhRestToken'),
-  restUrl: params.get('restUrl'),
-  userId: params.get('UserID') || params.get('userId'),
+  entityId: clean(params.get('EntityID') || params.get('entityId')),
+  token: clean(params.get('BhRestToken') || params.get('bhRestToken')),
+  restUrl: clean(params.get('restUrl')),
+  userId: clean(params.get('UserID') || params.get('userId')),
 };
 const LIVE = !!(ctx.entityId && ctx.token && ctx.restUrl);
+
+// Diagnostics: shows exactly what Bullhorn passed in, so config issues are
+// obvious at a glance. Token value is masked, only presence is reported.
+function diagnostics() {
+  if (!location.search) return 'No URL variables received at all. The custom tab URL may be missing the ?EntityID=... section.';
+  const report = ['EntityID', 'BhRestToken', 'restUrl', 'UserID'].map(k => {
+    const raw = params.get(k);
+    if (raw === null) return `${k}: missing from URL`;
+    if (raw.includes('*')) return `${k}: NOT substituted (arrived as ${raw})`;
+    if (k === 'BhRestToken') return `${k}: received (hidden)`;
+    return `${k}: ${raw}`;
+  });
+  return 'Connection check. ' + report.join(' · ');
+}
 
 /* ═══════════════════════════════════════════════════════════════════════
    DEMO DATA: three placements at different points in the journey
@@ -630,6 +647,11 @@ async function boot() {
     }
   } else {
     $('demoBanner').classList.add('show');
+    if (location.search) {
+      const ep = $('errorPanel');
+      ep.textContent = diagnostics();
+      ep.classList.add('show');
+    }
     loadDemo(0);
   }
 }
