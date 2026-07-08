@@ -403,18 +403,18 @@ const ctx = {
 };
 const LIVE = !!(ctx.entityId && ctx.token && ctx.restUrl);
 
-// Diagnostics: shows exactly what Bullhorn passed in, so config issues are
-// obvious at a glance. Token value is masked, only presence is reported.
+// Diagnostics: shows every parameter Bullhorn passed in, so config issues are
+// obvious at a glance. Token-like values are masked, only presence is reported.
 function diagnostics() {
-  if (!location.search) return 'No URL variables received at all. The custom tab URL may be missing the ?EntityID=... section.';
-  const report = ['EntityID', 'BhRestToken', 'restUrl', 'UserID'].map(k => {
-    const raw = params.get(k);
-    if (raw === null) return `${k}: missing from URL`;
-    if (raw.includes('*')) return `${k}: NOT substituted (arrived as ${raw})`;
-    if (k === 'BhRestToken') return `${k}: received (hidden)`;
-    return `${k}: ${raw}`;
-  });
-  return 'Connection check. ' + report.join(' · ');
+  if (!location.search) return 'No URL variables received at all. The custom tab URL may be missing its parameters.';
+  const secret = /token|authcode|password/i;
+  const report = [];
+  for (const [k, v] of params.entries()) {
+    if (v.includes('*')) report.push(`${k}: NOT substituted (arrived as ${v})`);
+    else if (secret.test(k)) report.push(`${k}: received (hidden)`);
+    else report.push(`${k}: ${v}`);
+  }
+  return 'Connection check. Received: ' + report.join(' · ');
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
