@@ -284,7 +284,7 @@
 <div class="card">
   <div class="demo-banner" id="demoBanner">
     <strong>Demo mode</strong>
-    <span>Sample data. Connect via Bullhorn custom tab for live placements.</span>
+    <span>Sample data shown for testing. Bullhorn connection details are shown below.</span>
     <select id="demoPicker" aria-label="Choose sample placement">
       <option value="0">Fresh start: Day 2</option>
       <option value="1">Cruising: Day 41</option>
@@ -387,34 +387,95 @@ const CONFIG = {
 
 /* ═══════════════════════════════════════════════════════════════════════
    BULLHORN CONTEXT
-   Custom tab URL example to configure in Admin > View Layout:
-   https://your-host/aftercare.html?EntityID=*entityID*&BhRestToken=*BhRestToken*&restUrl=*restUrl*&UserID=*userID*
-   Exact substitution variables depend on your private label config.
+
+   View Layout URL for layout/demo testing:
+   https://marble-lg.github.io/marble-tools/marble-aftercare-card.html
+
+   View Layout URL if your Bullhorn setup can substitute REST values:
+   https://marble-lg.github.io/marble-tools/marble-aftercare-card.html?EntityID=*entityID*&BhRestToken=*BhRestToken*&restUrl=*restUrl*&UserID=*userID*
+
+   Demo mode is intentional. The app will show sample data unless it receives:
+   EntityID + BhRestToken + restUrl
 ═══════════════════════════════════════════════════════════════════════ */
 const params = new URLSearchParams(location.search);
-// If Bullhorn didn't substitute a variable, it arrives as a literal like *entityID*.
-// Treat those as absent so we fall back to demo mode instead of firing doomed calls.
-const clean = v => (v && !v.includes('*')) ? v : null;
-const ctx = {
-  entityId: clean(params.get('EntityID') || params.get('entityId')),
-  token: clean(params.get('BhRestToken') || params.get('bhRestToken')),
-  restUrl: clean(params.get('restUrl')),
-  userId: clean(params.get('UserID') || params.get('userId')),
+
+// If Bullhorn does not substitute a variable, it may arrive as a literal like
+// *entityID*. Treat that as missing so we do not fire broken REST calls.
+const clean = v => {
+  if (!v) return null;
+  const value = String(v).trim();
+  if (!value || value.includes('*')) return null;
+
+  // Bullhorn/GitHub URLs can be encoded once or twice. Decode gently.
+  let decoded = value;
+  for (let i = 0; i < 2; i++) {
+    try {
+      const next = decodeURIComponent(decoded);
+      if (next === decoded) break;
+      decoded = next;
+    } catch {
+      break;
+    }
+  }
+  return decoded;
 };
-const LIVE = !!(ctx.entityId && ctx.token && ctx.restUrl);
+
+const firstParam = (...names) => {
+  for (const name of names) {
+    const value = clean(params.get(name));
+    if (value) return value;
+  }
+  return null;
+};
+
+const ctx = {
+  entityType: firstParam('EntityType', 'entityType'),
+  entityId: firstParam('EntityID', 'entityID', 'entityId', 'id'),
+  token: firstParam('BhRestToken', 'BHRestToken', 'bhRestToken', 'BhRESTToken'),
+  restUrl: firstParam('restUrl', 'RestUrl', 'RESTUrl', 'restURL'),
+  userId: firstParam('UserID', 'userID', 'userId'),
+  corporationId: firstParam('CorporationID', 'corporationID', 'corporationId'),
+  privateLabelId: firstParam('PrivateLabelID', 'privateLabelID', 'privateLabelId'),
+  authCode: firstParam('authCode', 'AuthCode', 'code'),
+  currentBullhornUrl: firstParam('currentBullhornUrl'),
+};
+
+const CONNECTED_TO_BULLHORN = !!ctx.entityId;
+const HAS_REST_DETAILS = !!(ctx.token && ctx.restUrl);
+const LIVE = !!(ctx.entityId && HAS_REST_DETAILS);
 
 // Diagnostics: shows every parameter Bullhorn passed in, so config issues are
 // obvious at a glance. Token-like values are masked, only presence is reported.
 function diagnostics() {
-  if (!location.search) return 'No URL variables received at all. The custom tab URL may be missing its parameters.';
-  const secret = /token|authcode|password/i;
-  const report = [];
-  for (const [k, v] of params.entries()) {
-    if (v.includes('*')) report.push(`${k}: NOT substituted (arrived as ${v})`);
-    else if (secret.test(k)) report.push(`${k}: received (hidden)`);
-    else report.push(`${k}: ${v}`);
+  if (!location.search) {
+    return 'Demo mode. No Bullhorn URL variables received yet. This is fine for layout testing.';
   }
-  return 'Connection check. Received: ' + report.join(' · ');
+
+  const secret = /token|authcode|password|secret|code/i;
+  const report = [];
+
+  for (const [k, raw] of params.entries()) {
+    const cleaned = clean(raw);
+    if (!cleaned) report.push(`${k}: NOT substituted`);
+    else if (secret.test(k)) report.push(`${k}: received`);
+    else report.push(`${k}: ${cleaned}`);
+  }
+
+  if (LIVE) {
+    return 'Live mode ready. Connected to Bullhorn Placement ' + ctx.entityId + '. Received: ' + report.join(' · ');
+  }
+
+  if (CONNECTED_TO_BULLHORN) {
+    const missing = [];
+    if (!ctx.token) missing.push('BhRestToken');
+    if (!ctx.restUrl) missing.push('restUrl');
+
+    return 'Connected to Bullhorn Placement ' + ctx.entityId +
+      '. Demo data is showing by design because live REST mode is missing ' +
+      missing.join(' and ') + '. Received: ' + report.join(' · ');
+  }
+
+  return 'Demo mode. Bullhorn context is incomplete. Received: ' + report.join(' · ');
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -456,10 +517,16 @@ const DEMO = [
 /* ═══════════════════════════════════════════════════════════════════════
    BULLHORN REST (live mode)
 ═══════════════════════════════════════════════════════════════════════ */
+function bhUrl(path) {
+  const base = ctx.restUrl.endsWith('/') ? ctx.restUrl : ctx.restUrl + '/';
+  const cleanPath = String(path).replace(/^\/+/, '');
+  const sep = cleanPath.includes('?') ? '&' : '?';
+  return `${base}${cleanPath}${sep}BhRestToken=${encodeURIComponent(ctx.token)}`;
+}
+
 async function bh(path) {
-  const sep = path.includes('?') ? '&' : '?';
-  const res = await fetch(`${ctx.restUrl}${path}${sep}BhRestToken=${encodeURIComponent(ctx.token)}`);
-  if (!res.ok) throw new Error(`Bullhorn REST ${res.status} on ${path.split('?')[0]}`);
+  const res = await fetch(bhUrl(path));
+  if (!res.ok) throw new Error(`Bullhorn REST ${res.status} on ${String(path).split('?')[0]}`);
   return res.json();
 }
 
@@ -478,7 +545,7 @@ async function saveNoteLive(comments) {
     comments,
     personReference: { id: state.placement.candidate.id },
   };
-  const res = await fetch(`${ctx.restUrl}entity/Note?BhRestToken=${encodeURIComponent(ctx.token)}`, {
+  const res = await fetch(bhUrl('entity/Note'), {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -641,7 +708,7 @@ async function boot() {
       render();
     } catch (err) {
       const ep = $('errorPanel');
-      ep.textContent = 'Could not reach Bullhorn: ' + err.message + '. Check the custom tab URL variables and that the session token is being passed through.';
+      ep.textContent = 'Could not reach Bullhorn live REST: ' + err.message + '. Demo data is showing instead. Check BhRestToken/restUrl substitution and API permissions.';
       ep.classList.add('show');
       loadDemo(0);
     }
